@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<!-- Rushil Gandevia, Group 8, ENGR 120, B11, Keiran Letwin -->
+<head>
+<style>
+    /* Default auto button */
+    .auto {
+        background-color: #CFD186;
+        position: absolute;
+        left: 550px;
+        top: 150px;
+        width: 150px;
+        height: 90px;
+        border-radius: 10px;
+        border-color: #1D1E0B;
+        font-family: 'Trebuchet MS', sans-serif;
+        font-size: 20px;
+    }
+
+    /* Red auto button */
+    .auto.red {
+        background-color: #f44336; /* Red */
+    }
+    /* Manual button */
+    .Manual {
+  	background-color:#ADF5FF;
+  	position: absolute; left: 550px; top: 300px;
+  	width: 150px;
+  	height: 90px;
+  	border-radius: 10px;
+  	border-color:#00363D;
+  	font-family: 'Trebuchet MS', sans-serif;
+  	font-size: 20px;
+}
+
+</style>
+</head>
+<body>
+  <h1>Smart Ln</h1>
+  <p>This is Rushil's test page for coding the buttons.</p>
+  <button id="autoButton" class="auto button">Auto</button>   <!-- The upper button on the right, called auto -->
+  <button class="Manual button">Manual</button>         <!-- The lower button on the right, called manual -->
+
+<script>
+    // Function to change the Auto button's text, colour, size, and position based on the value received
+    function updateAutoButton(value) {
+	var autoButton = document.getElementById("autoButton");
+        if (value === "red") {
+            autoButton.textContent = "Watering"; // Changes text to watering
+            autoButton.classList.add("red"); // Addes red class to change colour to red
+        } 
+        else {
+            autoButton.textContent = "Auto";   // Reverts text back to auto
+            autoButton.classList.remove("red"); // Removes red class to change the color back to default
+        }
+    }
+
+    
+    // Simulating receiving value from Raspberry Pi Pico
+    setInterval(function () {
+        // Simulated value received from Raspberry Pi Pico
+        var valueFromPico = Math.random() < 0.5 ? "green" : "red"; // Randomly choose between 'green' and 'red'
+
+        updateAutoButton(valueFromPico);
+    }, 
+    3000); // Change text and color every 5 seconds
+</script>
+</body>
+</html>

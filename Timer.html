@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<body>
+<h1>Smart Ln Time System</h1>
+<button id="recordButton">Smart Ln Is Off</button>
+<p id="timeDifference"></p>
+
+<script>
+    var startTime = null;
+
+    // Function to record time when the button is pressed
+    function recordTime() {
+        var currentTime = new Date();
+        if (!startTime) {
+            startTime = currentTime;
+            document.getElementById("recordButton").textContent = "Smart Ln Is On";
+        } else {
+            var endTime = currentTime;
+            var timeDifference = calculateTimeDifference(startTime, endTime);
+            document.getElementById("timeDifference").textContent = "Last Cycle Time: " + timeDifference;
+            startTime = null;
+            document.getElementById("recordButton").textContent = "Smart Ln Is Off";
+        }
+    }
+
+    // Function to calculate the time difference between two times
+    function calculateTimeDifference(start, end) {
+        var difference = end - start;
+        var hours = Math.floor(difference / (1000 * 60 * 60));
+        var minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((difference % (1000 * 60)) / 1000);
+        return hours + " hours, " + minutes + " minutes, " + seconds + " seconds";
+    }
+
+    // Add event listener to the button
+    document.getElementById("recordButton").addEventListener("click", recordTime);
+</script>
+</body>
+</html>
