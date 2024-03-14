@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <style>
+        body {
+            
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; /* Align content to the bottom of the page */
+        }
+
+        .grass {
+            width: 100%;
+            height: 75px; /* Height of the grass */
+            background: linear-gradient(90deg, transparent 70%, #2ecc71 70.1%); /* Green color */
+            background-size: 15px 15px; /* Size of  grass  */
+        }
+    </style>
+</head>
+<body>
+    <div class="grass"></div>
+</body>
+</html>
+
+</html>
