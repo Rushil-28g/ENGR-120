@@ -38,7 +38,7 @@ def checkADC_control():
         
         print("ADC Value", lightsensor_value)
 
-        if lightsensor_value < 5000 and tempsensor_value < 500 and IR_sense_value > 4000: #Placeholder threshold values will change after testing
+        if lightsensor_value < 5000 and tempsensor_value < 500 and IR_sense_value < 30000: #Placeholder threshold values will change after testing
             print("Button is OFF and LEDs are OFF")
             pin_redLED.on()
         
