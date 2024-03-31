@@ -1,4 +1,3 @@
-
 #Name: Rushil Gandevia, Sofia Daniels, Carmen Batchelor
 #Date: March. 19, 2024
 #Purpose: Micro-python code for the sensors
@@ -16,18 +15,13 @@ import json
 pin_redLED = machine.Pin(17, machine.Pin.OUT)
 status_red_led = "Off"
 
-IR_led = machine.Pin(0, machine.Pin.OUT)
-IR_led = IR_led.value(1)
-
-
 
 def get_led_status():
-    return "On" if pin_redLED
-    value() == 1 else "Off"
+    return "On" if pin_redLED.value() == 1 else "Off"
 
 def checkADC_control():
     global status_red_led
-    light = machine.ADC(26)#Configure GP# as ADC PIN
+    light = machine.ADC(26)
     thermistor = machine.ADC(27)
     IR_sense = machine.ADC(28) 
     
@@ -38,19 +32,19 @@ def checkADC_control():
         
         print("ADC Value", lightsensor_value)
 
-        if lightsensor_value < 5000 and tempsensor_value < 500 and IR_sense_value < 30000: #Placeholder threshold values will change after testing
-            print("Button is OFF and LEDs are OFF")
+        if lightsensor_value < 50000 and tempsensor_value < 600 and IR_sense_value < 30000:
+            print("Bright, Hot, and Unblocked")
             pin_redLED.on()
         
         else:
-            print("Button is ON and LEDS are ON")
+            print("Dark, Cold, or Blocked")
         pin_redLED.off()
     
         
 
-    status_red_led = get_led_status()#update red led status
-    print("RED LED STATUS:", get_led_status)
-    time.sleep(1)#wait for one second
+        status_red_led = get_led_status()#update red led status
+        print("RED LED STATUS:", get_led_status)
+        time.sleep(1)#wait for one second
 
 
 
@@ -67,7 +61,7 @@ ap = network.WLAN(network.AP_IF)
 ap.config(essid=access_name, password=password)
 ap.active(True)
 
-while ap.active() == False
+while ap.active() == False:
     pass
 print("Connection is successful")
 print(ap.ifconfig())
@@ -270,7 +264,7 @@ def get_status():
         "REDLEDStatus": status_red_led,
 
         }
-        return json.dumps(status)
+    return json.dumps(status)
 
 #Create a socket server
 
@@ -294,10 +288,10 @@ while True:
 
     if LED_on == 6: 
         print('LED ON')
-        redLED_pin.value(1)
+        pin_redLED.value(1)
     elif LED_off == 6:
         print('LED OFF')
-        redLED_pin.value(0)
+        pin_redLED.value(0)
 
 
     if request.find("/status") == 6:
@@ -313,9 +307,3 @@ while True:
         conn.send("Connection: close\n\n")
         conn.sendall(response)
     conn.close()
-
-
-
-
-
-
