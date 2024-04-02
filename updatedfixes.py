@@ -11,6 +11,8 @@ import json
 pin_redLED = machine.Pin(17, machine.Pin.OUT)
 status_red_led = "Off"
 
+#auto_button = "On"
+#manual_button = "Off" Manual button value can change in html portion. In below if statement, include "if manual_button = "On" turn on LED if Auto is off"
 
 def get_led_status():
     return "On" if pin_redLED.value() == 1 else "Off"
