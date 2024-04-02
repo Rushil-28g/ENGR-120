@@ -1,0 +1,23 @@
+import machine
+import utime
+
+lightsense = machine.ADC(26)
+tempsense = machine.ADC(27)
+IRsense = machine.ADC(28)
+red_led = machine.Pin(17, machine.Pin.OUT)
+red_led.value(0)
+
+while True:
+    light_val = lightsense.read_u16()
+    temp_val = tempsense.read_u16()
+    ir_val = IRsense.read_u16()
+    print(light_val) # < 50000 to turn on
+    print(temp_val) # < 600 to turn on
+    print(ir_val) # < 30000 to turn on
+    if light_val < 50000 and temp_val < 600 and ir_val < 30000:
+        print(" too bright, too hot, not blocked")
+        red_led.value(1)
+    else:
+        print("dark, cold, and/or blocked")
+        red_led.value(0)
+    utime.sleep(2)
