@@ -1,0 +1,139 @@
+import machine
+import network
+import usocket as socket
+import utime as time
+import _thread
+import json
+
+# Define GPIO pins
+pin_redLED = machine.Pin(17, machine.Pin.OUT)
+status_red_led = "Off"
+
+# Function to get the status of the red LED
+def get_led_status():
+    return "On" if pin_redLED.value() == 1 else "Off"
+
+# Function to toggle the red LED
+def toggle_red_led():
+    if pin_redLED.value() == 1:
+        pin_redLED.off()
+    else:
+        pin_redLED.on()
+
+def checkADC_control():
+    global status_red_led
+    light = machine.ADC(26)
+    thermistor = machine.ADC(27)
+    IR_sense = machine.ADC(28)
+
+    while True:
+        try:
+            lightsensor_value = light.read_u16()
+            tempsensor_value = thermistor.read_u16()
+            IR_sense_value = IR_sense.read_u16()
+
+            print("ADC Value", lightsensor_value)
+
+            if lightsensor_value < 50000 and tempsensor_value < 600 and IR_sense_value < 30000:
+                print("Bright, Hot, and Unblocked")
+                pin_redLED.on()
+            else:
+                print("Dark, Cold, or Blocked")
+                pin_redLED.off()
+
+            status_red_led = get_led_status()  # update red led status
+            print("RED LED STATUS:", get_led_status())
+        except Exception as e:
+            print("Exception in ADC thread:", e)
+        time.sleep(5)  # wait for one second
+        
+# Define a function to get the status of the red LED
+def get_status():
+    status = {
+        "REDLEDStatus": status_red_led,
+    }
+    return json.dumps(status)
+
+# Create a network connection
+access_name = 'Smart_Ln'
+password = 'lawnlawn'
+ap = network.WLAN(network.AP_IF)
+ap.config(essid=access_name, password=password)
+ap.active(True)
+
+while ap.active() == False:
+    pass
+print("Connection is successful")
+print(ap.ifconfig())
+
+# Define HTTP Response
+def webpage():
+    status_red_led = get_led_status()
+    led_color = "red" if status_red_led == "On" else "gray"
+
+    html = """
+    <html>
+    <head>
+        <title>Smart Ln</title>
+    </head>
+    <body>
+        <button id="autoButton" class="auto button">Auto</button>
+        <button id="manualButton" class="Manual button">Manual Off</button>
+        <script>
+            function toggleLED() {
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        if (xhr.responseText === "LED turned on") {
+                            document.getElementById("manualButton").textContent = "Manual On";
+                        } else if (xhr.responseText === "LED turned off") {
+                            document.getElementById("manualButton").textContent = "Manual Off";
+                        }
+                    }
+                };
+                xhr.open("GET", "/toggle_led", true);
+                xhr.send();
+            }
+            document.getElementById("manualButton").addEventListener("click", toggleLED);
+        </script>
+    </body>
+    </html>
+    """
+    return html
+
+# Create a socket server
+_thread.start_new_thread(checkADC_control, ())
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.bind(('192.168.4.1', 80))  # Change IP address to the Pi Pico's IP address
+s.listen(5)
+
+# This section of the code will have minimum changes.
+while True:
+    conn, addr = s.accept()
+    print('Got a connection from %s' % str(addr))
+    request = conn.recv(1024)
+    if request:
+        request = str(request)
+        print('Content = %s' % request)
+
+        if request.find("/toggle_led") == 6:
+            toggle_red_led()
+            response = "LED turned " + ("on" if pin_redLED.value() == 1 else "off")
+            conn.send("HTTP/1.1 200 OK\r\n")
+            conn.send("Content-Type: text/plain\r\n")
+            conn.send("Connection: close\r\n\r\n")
+            conn.sendall(response)
+        elif request.find("/status") == 6:
+            response = get_status()
+            conn.send("HTTP/1.1 200 OK\r\n")
+            conn.send("Content-Type: application/json\r\n")
+            conn.send("Connection: close\r\n\r\n")
+            conn.sendall(response)
+        else:
+            response = webpage()
+            conn.send("HTTP/1.1 200 OK\r\n")
+            conn.send("Content-Type: text/html\r\n")
+            conn.send("Connection: close\r\n\r\n")
+            conn.sendall(response)
+    conn.close()
